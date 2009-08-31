@@ -103,6 +103,19 @@ class AddTrackVisitsCachingToPostsMigration < ActiveRecord::Migration
 end
 </pre>
 
+h2. Dependencies
+
+Basic usage:
+
+* "rails":http://github.com/rails/rails (well...)
+
+For running tests:
+
+* sqlite3-ruby
+* "thoughtbot-shoulda":http://github.com/thoughtbot/shoulda
+* "nakajima-acts_as_fu":http://github.com/nakajima/acts_as_fu
+* "jgre-monkeyspecdoc":http://github.com/jgre/monkeyspecdoc
+
 h2. Notes
 
 * Tested with Ruby 1.9+. =)
