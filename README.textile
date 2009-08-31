@@ -58,7 +58,7 @@ class Post < ActiveRecord::Base
 end
 </pre>
 
-*Note:* @:visitor_class_name@ is optional if you choose any of @User@ or @Account@ as visitor classes.
+*Note:* @:by@ is optional if you choose any of @User@ or @Account@ as visitor classes.
 
 3. ...and here we go:
 
