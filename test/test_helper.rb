@@ -1,5 +1,4 @@
 # coding: utf-8
-
 require 'rubygems'
 
 gem 'test-unit', '>= 2.0.0'

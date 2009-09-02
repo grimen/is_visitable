@@ -65,21 +65,35 @@ end
 <pre>
 @post = Post.create
 
-@post.unique_visits    # => 0
-@post.total_visits     # => 0
+@post.visited?          # => false
+@post.unique_visits     # => 0
+@post.total_visits      # => 0
 
 @post.visit!(:ip => '128.0.0.0')
 @post.visit!(:visitor => @user)      # aliases: :user, :account
 
-@post.unique_visits    # => 2
-@post.total_visits     # => 2
+@post.visited?          # => true
+@post.unique_visits     # => 2
+@post.total_visits      # => 2
 
 @post.visit!(:ip => '128.0.0.0')
 @post.visit!(:visitor => @user)
 @post.visit!(:ip => '128.0.0.1')
 
-@post.unique_visits    # => 3
-@post.total_visits     # => 5
+@post.unique_visits     # => 3
+@post.total_visits      # => 5
+
+@post.visted_by?('128.0.0.0')     # => true
+@post.visted_by?(@user)           # => true
+@post.visted_by?('128.0.0.2')     # => false
+@post.visted_by?(@another_user)   # => false
+
+@post.reset_visits!
+@post.unique_visits     # => 0
+@post.total_visits      # => 0
+
+# Note: See documentation for more info.
+
 </pre>
 
 h2. Caching
