@@ -7,8 +7,8 @@ require 'rake/rdoctask'
 NAME = "tracks_visits"
 SUMMARY = %Q{Rails: Track unique and total visits/viewings of an ActiveRecord resource based on user/account or IP.}
 HOMEPAGE = "http://github.com/grimen/#{NAME}/tree/master"
-AUTHOR = "grimen@gmail.com"
-EMAIL = "Jonas Grimfelt"
+AUTHOR = "Jonas Grimfelt"
+EMAIL = "grimen@gmail.com"
 SUPPORT_FILES = %w(README.textile)
 
 begin
