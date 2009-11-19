@@ -248,7 +248,7 @@ end
 
 h2. Dependencies
 
-For testing: "shoulda":http://github.com/thoughtbot/shoulda, "redgreen":http://gemcutter.org/gems/redgreen, "acts_as_fu":http://github.com/nakajima/acts_as_fu (and *sqlite3-ruby*).
+For testing: "shoulda":http://github.com/thoughtbot/shoulda, "redgreen":http://gemcutter.org/gems/redgreen, "acts_as_fu":http://github.com/nakajima/acts_as_fu, and "sqlite3-ruby":http://gemcutter.org/gems/sqlite3-ruby.
 
 h2. Notes
 
