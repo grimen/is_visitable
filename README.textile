@@ -230,14 +230,12 @@ end
 
 h2. Example
 
-h3. In a "visitable resource" controller:
+h3. In your "visitable resource" controller:
 
 Example: @app/controllers/posts_controller.rb@:
 
 <pre>
 class PostsController < ApplicationController
-  
-  ...
   
   def show
     ...
@@ -245,18 +243,12 @@ class PostsController < ApplicationController
     ...
   end
   
-  ...
-  
 end
 </pre>
 
 h2. Dependencies
 
-Tests:
-
-* sqlite3-ruby
-* "shoulda":http://github.com/thoughtbot/shoulda
-* "acts_as_fu":http://github.com/nakajima/acts_as_fu
+For testing: "shoulda":http://github.com/thoughtbot/shoulda, "redgreen":http://gemcutter.org/gems/redgreen, "acts_as_fu":http://github.com/nakajima/acts_as_fu (and *sqlite3-ruby*).
 
 h2. Notes
 
