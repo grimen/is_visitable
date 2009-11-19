@@ -164,10 +164,6 @@ _TODO: Documentation on named scopes for Visitor._
 h3. Examples using finders:
 
 <pre>
-TODO: Examples of real life usage of IsVisitable-finders.
-</pre>
-
-<pre>
 @user = User.first
 @post = Post.first
 
