@@ -228,7 +228,7 @@ class AddTrackVisitsCachingToPostsMigration < ActiveRecord::Migration
 end
 </pre>
 
-h2. Real Life Example
+h2. Example
 
 h3. In a "visitable resource" controller:
 
@@ -237,10 +237,15 @@ Example: @app/controllers/posts_controller.rb@:
 <pre>
 class PostsController < ApplicationController
   
+  ...
+  
   def show
     ...
     @post.visit!(:visitor => (current_user.present? ? current_user : request.try(:remote_ip)))
+    ...
   end
+  
+  ...
   
 end
 </pre>
