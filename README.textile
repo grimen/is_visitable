@@ -1,23 +1,33 @@
-h1. TRACKS_VISITS
+h1. IS_VISITABLE
 
 _Rails: Track unique and total visits/viewings of an ActiveRecord resource based on user/account or IP._
 
 h2. Installation
 
-<pre>sudo gem install grimen-tracks_visits</pre>
+*Gem:*
+
+<pre>sudo gem install is_visitable</pre>
+
+and in @config/environment.rb@:
+
+<pre>config.gem 'is_visitable'</pre>
+
+*Plugin:*
+
+<pre>./script/plugin install git://github.com/grimen/is_visitable.git</pre>
 
 h2. Usage
 
-1. Generate migration:
+h3. 1. Generate migration:
 
 <pre>
-$ ./script/generate tracks_visits_migration
+$ ./script/generate is_visitable_migration
 </pre>
 
-Generates @db/migrations/{timestamp}_tracks_visits_migration@ with:
+Generates @db/migrations/{timestamp}_is_visitable_migration@ with:
 
 <pre>
-class TracksVisitsMigration < ActiveRecord::Migration
+class IsVisitableMigration < ActiveRecord::Migration
   def self.up
     create_table :visits do |t|
       t.references  :visitable,     :polymorphic => true
@@ -25,7 +35,7 @@ class TracksVisitsMigration < ActiveRecord::Migration
       t.references  :visitor,       :polymorphic => true
       t.string      :ip,            :limit => 24
       
-      t.integer     :visits,        :default => 0
+      t.integer     :visits,        :default => 1
       
       # created_at <=> first_visited_at
       # updated_at <=> last_visited_at
@@ -42,25 +52,26 @@ class TracksVisitsMigration < ActiveRecord::Migration
 end
 </pre>
 
-2. Make your model count visits:
+h3. 2. Make your model count visits:
 
 <pre>
 class Post < ActiveRecord::Base
-  tracks_visits
+  is_visitable
 end
 </pre>
 
-or
+or, with explicit visitor (or visitors):
 
 <pre>
 class Post < ActiveRecord::Base
-  tracks_visits :by => :user  # Setup associations for the visitor class automatically
+  # Setup associations for the visitor class(es) automatically.
+  is_visitable :by => [:users, :ducks]
 end
 </pre>
 
-*Note:* @:by@ is optional if you choose any of @User@ or @Account@ as visitor classes.
+h3. 3. ...and here we go:
 
-3. ...and here we go:
+Examples:
 
 <pre>
 @post = Post.create
@@ -69,24 +80,24 @@ end
 @post.unique_visits     # => 0
 @post.total_visits      # => 0
 
-@post.visit!(:ip => '128.0.0.0')
+@post.visit!(:visitor => '128.0.0.0')
 @post.visit!(:visitor => @user)      # aliases: :user, :account
 
 @post.visited?          # => true
 @post.unique_visits     # => 2
 @post.total_visits      # => 2
 
-@post.visit!(:ip => '128.0.0.0')
+@post.visit!(:visitor => '128.0.0.0')
 @post.visit!(:visitor => @user)
-@post.visit!(:ip => '128.0.0.1')
+@post.visit!(:visitor => '128.0.0.1')
 
 @post.unique_visits     # => 3
 @post.total_visits      # => 5
 
-@post.visted_by?('128.0.0.0')     # => true
-@post.visted_by?(@user)           # => true
-@post.visted_by?('128.0.0.2')     # => false
-@post.visted_by?(@another_user)   # => false
+@post.visited_by?('128.0.0.0')     # => true
+@post.visited_by?(@user)           # => true
+@post.visited_by?('128.0.0.2')     # => false
+@post.visited_by?(@another_user)   # => false
 
 @post.reset_visits!
 @post.unique_visits     # => 0
@@ -94,6 +105,44 @@ end
 
 # Note: See documentation for more info.
 
+</pre>
+
+h2. Mixin Arguments
+
+TODO
+
+h2. Finders (Named Scopes)
+
+IsVisitable has plenty of useful finders implemented using named scopes. Here they are:
+
+h3. @Visit@
+
+TODO
+
+h3. @Visitable@
+
+TODO
+
+h3. @Visitor@
+
+TODO
+
+h3. Examples using finders:
+
+h2. Additional Methods
+
+*Note:* See documentation (RDoc).
+
+h2. Extend the Visit model
+
+This is optional, but if you wanna be in control of your models (in this case @Visit@) you can take control like this:
+
+<pre>
+class Visit < IsVisitable::Visit
+  
+  # Do what you do best here... (stating the obvious: core IsVisitable associations, named scopes, etc. will be inherited)
+  
+end
 </pre>
 
 h2. Caching
@@ -105,7 +154,7 @@ Additional caching fields:
 <pre>
 class AddTrackVisitsCachingToPostsMigration < ActiveRecord::Migration
   def self.up
-    # Enable tracks_visits-caching.
+    # Enable is_visitable-caching.
     add_column :posts, :unique_visits_count, :integer
     add_column :posts, :total_visits_count, :integer
   end
@@ -116,6 +165,13 @@ class AddTrackVisitsCachingToPostsMigration < ActiveRecord::Migration
   end
 end
 </pre>
+
+h2. Real Life Example
+
+h3. Controller
+
+TODO
+
 
 h2. Dependencies
 
@@ -128,18 +184,20 @@ For running tests:
 * sqlite3-ruby
 * "thoughtbot-shoulda":http://github.com/thoughtbot/shoulda
 * "nakajima-acts_as_fu":http://github.com/nakajima/acts_as_fu
-* "jgre-monkeyspecdoc":http://github.com/jgre/monkeyspecdoc
 
 h2. Notes
 
-* Tested with Ruby 1.9+. =)
+* Tested with Ruby 1.8.6 - 1.9.1 and Rails 2.3.2 - 2.3.4.
 * Let me know if you find any bugs; not used in production yet so consider this a concept version.
 
 h2. TODO
 
-* More thorough tests for more complex scenarios.
-* ActiveModel finder helpers.
+* documentation: A few more README-examples.
+* testing: More thorough tests for more complex scenarios.
+* feature: Useful finders for @Visitable@.
+* feature: Useful finders for @Visitor@.
 
 h2. License
 
-Copyright (c) Jonas Grimfelt, released under the MIT-license.
+Released under the MIT license.
+Copyright (c) "Jonas Grimfelt":http://github.com/grimen

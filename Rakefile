@@ -4,31 +4,37 @@ require 'rake'
 require 'rake/testtask'
 require 'rake/rdoctask'
 
-NAME = "tracks_visits"
+NAME = "is_visitable"
 SUMMARY = %Q{Rails: Track unique and total visits/viewings of an ActiveRecord resource based on user/account or IP.}
-HOMEPAGE = "http://github.com/grimen/#{NAME}/tree/master"
+HOMEPAGE = "http://github.com/grimen/#{NAME}"
 AUTHOR = "Jonas Grimfelt"
 EMAIL = "grimen@gmail.com"
 SUPPORT_FILES = %w(README.textile)
 
 begin
-  gem 'technicalpickles-jeweler', '>= 1.2.1'
+  gem 'jeweler', '>= 1.0.0'
   require 'jeweler'
-  Jeweler::Tasks.new do |gem|
-    gem.name = NAME
-    gem.summary = SUMMARY
-    gem.description = SUMMARY
-    gem.homepage = HOMEPAGE
-    gem.author = AUTHOR
-    gem.email = EMAIL
+  
+  Jeweler::Tasks.new do |gemspec|
+    gemspec.name = NAME
+    gemspec.summary = SUMMARY
+    gemspec.description = SUMMARY
+    gemspec.homepage = HOMEPAGE
+    gemspec.author = AUTHOR
+    gemspec.email = EMAIL
     
-    gem.require_paths = %w{lib}
-    gem.files = SUPPORT_FILES << %w(MIT-LICENSE Rakefile) << Dir.glob(File.join('{lib,test,rails}', '**', '*'))
-    gem.executables = %w()
-    gem.extra_rdoc_files = SUPPORT_FILES
+    gemspec.require_paths = %w{lib}
+    gemspec.files = SUPPORT_FILES << %w(MIT-LICENSE Rakefile) << Dir.glob(File.join(*%w[{generators,lib,test} ** *]).to_s)
+    gemspec.executables = %w[]
+    gemspec.extra_rdoc_files = SUPPORT_FILES
+    
+    gemspec.add_dependency 'activerecord', '>= 1.2.3'
+    gemspec.add_dependency 'activesupport', '>= 1.2.3'
   end
+  
+  Jeweler::GemcutterTasks.new
 rescue LoadError
-  puts "Jeweler, or one of its dependencies, is not available. Install it with: sudo gem install technicalpickles-jeweler -s http://gems.github.com"
+  puts "Jeweler - or one of it's dependencies - is not available. Install it with: sudo gem install jeweler -s http://gemcutter.org"
 end
 
 desc %Q{Run unit tests for "#{NAME}".}
@@ -36,8 +42,8 @@ task :default => :test
 
 desc %Q{Run unit tests for "#{NAME}".}
 Rake::TestTask.new(:test) do |test|
-  test.libs << %w(lib test)
-  test.pattern = File.join('test', '**', '*_test.rb')
+  test.libs << %w[lib test]
+  test.pattern = File.join(*%w[test ** *_test.rb])
   test.verbose = true
 end
 
@@ -47,5 +53,5 @@ Rake::RDocTask.new(:rdoc) do |rdoc|
   rdoc.title = NAME
   rdoc.options << '--line-numbers' << '--inline-source' << '--charset=UTF-8'
   rdoc.rdoc_files.include(SUPPORT_FILES)
-  rdoc.rdoc_files.include(File.join('lib', '**', '*.rb'))
+  rdoc.rdoc_files.include(File.join(*%w[lib ** *.rb]))
 end

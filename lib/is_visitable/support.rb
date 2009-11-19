@@ -1,4 +1,4 @@
-module TracksVisits
+module IsVisitable
   module Support
     
     extend self

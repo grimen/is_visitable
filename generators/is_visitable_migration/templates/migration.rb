@@ -1,6 +1,6 @@
 # coding: utf-8
 
-class TracksVisitsMigration < ActiveRecord::Migration
+class IsVisitableMigration < ActiveRecord::Migration
   def self.up
     create_table :visits do |t|
       t.references  :visitable,     :polymorphic => true
@@ -8,7 +8,7 @@ class TracksVisitsMigration < ActiveRecord::Migration
       t.references  :visitor,       :polymorphic => true
       t.string      :ip,            :limit => 24
       
-      t.integer     :visits,        :default => 0
+      t.integer     :visits,        :default => 1
       
       # created_at <=> first_visited_at
       # updated_at <=> last_visited_at
