@@ -114,7 +114,7 @@ The @is_visitable@ mixin takes some hash arguments for customization:
 * @:by@ - the visitor model(s), e.g. User, Account, etc. (accepts either symbol or class, i.e. @User@ <=> @:user@ <=> @:users@, or an array of suchif there are more than one visitor model). The reviewer model will be setup for you. Note: Polymorhic, so it accepts any model. Default: @nil@.
 * @:accept_ip@ - accept anonymous users uniquely identified by IP (well...you handle the bots =D). See examples below how to use this as your visitor object. Default: @false@.
 
-h3. Aliases
+h2. Aliases
 
 To make the usage of IsVistable a bit more generic (similar to other plugins you may use), there are two useful aliases for this purpose:
 
