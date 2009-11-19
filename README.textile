@@ -116,10 +116,10 @@ The @is_visitable@ mixin takes some hash arguments for customization:
 
 h3. Aliases
 
-To make the usage of IsVistable usage a bit more generic (similar to other plugins you may use), there are two useful aliases for this purpose:
+To make the usage of IsVistable a bit more generic (similar to other plugins you may use), there are two useful aliases for this purpose:
 
-* Visit#owner   <=>   Visit#visitor
-* Visit#object  <=>   Visit#visitable
+* @Visit#owner@     <=>   @Visit#visitor@
+* @Visit#object@    <=>   @Visit#visitable@
 
 Example:
 
