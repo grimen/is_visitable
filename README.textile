@@ -111,7 +111,7 @@ h2. Mixin Arguments
 
 The @is_visitable@ mixin takes some hash arguments for customization:
 
-* @:by@ - the visitor model(s), e.g. User, Account, etc. (accepts either symbol or class, i.e. @User@ <=> @:user@ <=> @:users@, or an array of suchif there are more than one visitor model). The reviewer model will be setup for you. Note: Polymorhic, so it accepts any model. Default: @nil@.
+* @:by@ - the visitor model(s), e.g. User, Account, etc. (accepts either symbol or class, i.e. @User@ <=> @:user@ <=> @:users@, or an array of suchif there are more than one visitor model). The visitor model will be setup for you. Note: Polymorhic, so it accepts any model. Default: @nil@.
 * @:accept_ip@ - accept anonymous users uniquely identified by IP (well...you handle the bots =D). See examples below how to use this as your visitor object. Default: @false@.
 
 h2. Aliases
@@ -165,6 +165,30 @@ h3. Examples using finders:
 
 <pre>
 TODO: Examples of real life usage of IsVisitable-finders.
+</pre>
+
+<pre>
+@user = User.first
+@post = Post.first
+
+@post.visits.recent(10)           # => [10 most recent visits]
+@post.visits.recent(1.week.ago)   # => [visits since 1 week ago]
+
+@post.visits.with_visits(100..500)    # => [all visits on @post with total visits between 100 and 500]
+
+@post.visits.by_visitor_type(:user)   # => [all visits on @post by User-objects]
+# ...or:
+@post.visits.by_visitor_type(:users)  # => [all visits on @post by User-objects]
+# ...or:
+@post.visits.by_visitor_type(User)    # => [all visits on @post by User-objects]
+
+@user.visits.on(@post)  # => [all visits by @user on @post]
+@post.visits.by(@user)  # => [all visits by @user on @post] (equivalent with above)
+
+Visit.on(@post)  # => [all visits on @user] <=> @post.visits
+Visit.by(@user)  # => [all visits by @user] <=> @user.visits
+
+# etc, etc. It's all named scopes, so it's really no new hokus-pokus you have to learn.
 </pre>
 
 h2. Additional Methods
