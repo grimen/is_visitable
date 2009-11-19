@@ -12,11 +12,11 @@ def smart_require(lib_name, gem_name, gem_version = '>= 0.0.0')
   end
 end
 
-smart_require 'test/unit', 'test-unit', '>= 1.2.3'
-smart_require 'shoulda', 'thoughtbot-shoulda', '>= 2.10.0'
+smart_require 'test/unit', 'test-unit', '= 1.2.3'
+smart_require 'shoulda', 'shoulda', '>= 2.10.0'
 smart_require 'redgreen', 'redgreen', '>= 0.10.4'
 smart_require 'sqlite3', 'sqlite3-ruby', '>= 1.2.0'
-smart_require 'acts_as_fu', 'nakajima-acts_as_fu', '>= 0.0.5'
+smart_require 'acts_as_fu', 'acts_as_fu', '>= 0.0.5'
 
 require 'test_helper'
 
@@ -38,18 +38,18 @@ build_model :users
 build_model :accounts
 build_model :posts
 
-build_model :untracked_posts do
+build_model :unvisitable_posts do
 end
 
-build_model :tracked_posts do
+build_model :visitable_posts do
   is_visitable :by => :users, :accept_ip => false
 end
 
-build_model :tracked_post_with_ips do
+build_model :visitable_post_with_ips do
   is_visitable :by => [:accounts, :users], :accept_ip => true
 end
 
-build_model :cached_tracked_posts do
+build_model :cached_visitable_posts do
   integer :cached_unique_visits
   integer :cached_total_visits
   

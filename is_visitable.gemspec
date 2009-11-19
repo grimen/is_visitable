@@ -57,12 +57,27 @@ Gem::Specification.new do |s|
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<activerecord>, [">= 1.2.3"])
       s.add_runtime_dependency(%q<activesupport>, [">= 1.2.3"])
+      s.add_development_dependency(%q<test-unit>, ["= 1.2.3"])
+      s.add_development_dependency(%q<shoulda>, [">= 2.10.0"])
+      s.add_development_dependency(%q<redgreen>, [">= 0.10.4"])
+      s.add_development_dependency(%q<sqlite3-ruby>, [">= 1.2.0"])
+      s.add_development_dependency(%q<acts_as_fu>, [">= 0.0.5"])
     else
       s.add_dependency(%q<activerecord>, [">= 1.2.3"])
       s.add_dependency(%q<activesupport>, [">= 1.2.3"])
+      s.add_dependency(%q<test-unit>, ["= 1.2.3"])
+      s.add_dependency(%q<shoulda>, [">= 2.10.0"])
+      s.add_dependency(%q<redgreen>, [">= 0.10.4"])
+      s.add_dependency(%q<sqlite3-ruby>, [">= 1.2.0"])
+      s.add_dependency(%q<acts_as_fu>, [">= 0.0.5"])
     end
   else
     s.add_dependency(%q<activerecord>, [">= 1.2.3"])
     s.add_dependency(%q<activesupport>, [">= 1.2.3"])
+    s.add_dependency(%q<test-unit>, ["= 1.2.3"])
+    s.add_dependency(%q<shoulda>, [">= 2.10.0"])
+    s.add_dependency(%q<redgreen>, [">= 0.10.4"])
+    s.add_dependency(%q<sqlite3-ruby>, [">= 1.2.0"])
+    s.add_dependency(%q<acts_as_fu>, [">= 0.0.5"])
   end
 end

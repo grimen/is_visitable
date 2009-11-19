@@ -5,98 +5,151 @@ class IsVisitableTest < Test::Unit::TestCase
   
   def setup
     @visit = ::Visit.new
-    @user_1 = ::User.create
+    
+    @user = ::User.create
     @user_2 = ::User.create
-    @tracked_post = ::TrackedPost.create
-    @tracked_post_with_ip = ::TrackedPostWithIp.create
+    @user_3 = ::User.create
+    @guest = ::Guest.create
+    @account = ::Account.create
+    
+    @unvisitable_post = ::Post.create
+    @visitable_post = ::VisitablePost.create
+    @visitable_post_with_ip = ::VisitablePostWithIp.create
   end
   
   context "initialization" do
     
     should "extend ActiveRecord::Base" do
       assert_respond_to ::ActiveRecord::Base, :is_visitable
+      assert_respond_to ::ActiveRecord::Base, :is_visitable?
     end
     
     should "declare is_visitable instance methods for visitable objects" do
-      methods = [
-          :first_visited_at,
+      public_instance_methods = [
+          [:is_visitable?, :visitable?],
           :first_visited_at,
           :last_visited_at,
           :unique_visits,
           :total_visits,
-          :visited_by?,
           :reset_visits!,
-          :visitable?,
-          :visit!
-        ]
+          [:is_visited?, :visited?],
+          [:is_visited_by?, :visited_by?],
+          :visit_by,
+          :visit!,
+          :visits
+        ].flatten
         
-      assert methods.all? { |m| @tracked_post.respond_to?(m) }
-      # assert !methods.any? { |m| @tracked_post.respond_to?(m) }
+      #assert methods.all? { |m| @visitable_post.respond_to?(m) }
+      # assert !methods.any? { |m| @visitable_post.respond_to?(m) }
+      assert public_instance_methods.all? { |m| @visitable_post.respond_to?(m) }
+      assert !public_instance_methods.all? { |m| @unvisitable_post.respond_to?(m) }
     end
     
     # Don't work for some reason... =S
-    # should "be enabled only for specified models" do
-    #   assert @tracked_post.visitable?
-    #   assert_not @untracked_post.visitable?
-    # end
+    should "be enabled only for specified models" do
+      assert @visitable_post.visitable?
+      assert !@unvisitable_post.visitable?
+    end
     
   end
   
   context "visitable" do
     should "have zero visits from the beginning" do
-      assert_equal(@tracked_post_with_ip.visits.size, 0)
+      assert_equal(@visitable_post.visits.size, 0)
+      assert_equal(@visitable_post_with_ip.visits.size, 0)
     end
     
-    should "count visits based on IP correctly" do
-      number_of_unique_visits = @tracked_post_with_ip.unique_visits
-      number_of_total_visits = @tracked_post_with_ip.total_visits
-      
-      @tracked_post_with_ip.visit!(:visitor => '128.0.0.0')
-      @tracked_post_with_ip.visit!(:visitor => '128.0.0.1')
-      @tracked_post_with_ip.visit!(:visitor => '128.0.0.1')
-      
-      assert_equal number_of_unique_visits + 2, @tracked_post_with_ip.unique_visits
-      assert_equal number_of_total_visits + 3, @tracked_post_with_ip.total_visits
+    context "visitor type" do
+      should "not accept any reviews on IP if disabled" do
+        assert_raise ::IsVisitable::InvalidVisitorError do
+          @visitable_post.visit!(:by => '128.0.0.0')
+        end
+      end
     end
     
-    should "count visits based on visitor object (user/account) correctly" do
-      number_of_unique_visits = @tracked_post_with_ip.unique_visits
-      number_of_total_visits = @tracked_post_with_ip.total_visits
+    context "visits counting" do
       
-      @tracked_post_with_ip.visit!(:visitor => @user_1)
-      @tracked_post_with_ip.visit!(:visitor => @user_2)
-      @tracked_post_with_ip.visit!(:visitor => @user_2)
+      context "only IP visitors" do
+        should "count each IP-visit only once" do
+          number_of_unique_visits = @visitable_post_with_ip.unique_visits
+          number_of_total_visits = @visitable_post_with_ip.total_visits
+          
+          @visitable_post_with_ip.visit!(:by => '128.0.0.0')
+          @visitable_post_with_ip.visit!(:by => '128.0.0.1')
+          @visitable_post_with_ip.visit!(:by => '128.0.0.1')
+          
+          assert_equal number_of_unique_visits + 2, @visitable_post_with_ip.unique_visits
+          assert_equal number_of_total_visits + 3, @visitable_post_with_ip.total_visits
+        end
+      end
       
-      assert_equal number_of_unique_visits + 2, @tracked_post_with_ip.unique_visits
-      assert_equal number_of_total_visits + 3, @tracked_post_with_ip.total_visits
-    end
-    
-    should "count visits based on both IP and visitor object (user/account) correctly" do
-      number_of_unique_visits = @tracked_post_with_ip.unique_visits
-      number_of_total_visits = @tracked_post_with_ip.total_visits
+      context "only ActiveRecord visitors" do
+        should "count each ActiveRecord-visit only once" do
+          number_of_unique_visits = @visitable_post.unique_visits
+          number_of_total_visits = @visitable_post.total_visits
+          
+          @visitable_post.visit!(:by => @user_2)
+          @visitable_post.visit!(:by => @user_3)
+          @visitable_post.visit!(:by => @user_3)
+          
+          assert_equal number_of_unique_visits + 2, @visitable_post.unique_visits
+          assert_equal number_of_total_visits + 3, @visitable_post.total_visits
+        end
+      end
       
-      @tracked_post_with_ip.visit!(:visitor => '128.0.0.0')
-      @tracked_post_with_ip.visit!(:visitor => '128.0.0.0')
-      @tracked_post_with_ip.visit!(:visitor => @user_1)
-      @tracked_post_with_ip.visit!(:visitor => @user_2)
-      @tracked_post_with_ip.visit!(:visitor => @user_2)
+      context "both IP and ActiveRecord visitors" do
+        should "count each IP and ActiveRecord-visit only once" do
+          number_of_unique_visits = @visitable_post_with_ip.unique_visits
+          number_of_total_visits = @visitable_post_with_ip.total_visits
+          
+          @visitable_post_with_ip.visit!(:by => '128.0.0.0')
+          @visitable_post_with_ip.visit!(:by => '128.0.0.0')
+          @visitable_post_with_ip.visit!(:by => @user_2)
+          @visitable_post_with_ip.visit!(:by => @user_3)
+          @visitable_post_with_ip.visit!(:by => @user_3)
+          
+          assert_equal number_of_unique_visits + 3, @visitable_post_with_ip.unique_visits
+          assert_equal number_of_total_visits + 5, @visitable_post_with_ip.total_visits
+        end
+      end
       
-      assert_equal number_of_unique_visits + 3, @tracked_post_with_ip.unique_visits
-      assert_equal number_of_total_visits + 5, @tracked_post_with_ip.total_visits
     end
     
     should "delete all visits upon reset" do
-      @tracked_post_with_ip.visit!(:visitor => '128.0.0.0')
-      @tracked_post_with_ip.reset_visits!
+      @visitable_post_with_ip.visit!(:by => '128.0.0.0')
+      @visitable_post_with_ip.reset_visits!
       
-      assert_equal 0, @tracked_post_with_ip.unique_visits
-      assert_equal 0, @tracked_post_with_ip.total_visits
+      assert_equal 0, @visitable_post_with_ip.unique_visits
+      assert_equal 0, @visitable_post_with_ip.total_visits
     end
   end
   
   context "visitor" do
     
-    # Nothing
+    context "associations" do
+      should "have many visits" do
+        assert @user.respond_to?(:visits)
+        assert @account.respond_to?(:visits)
+        assert !@guest.respond_to?(:visits)
+        
+        VisitablePost.create.visit!(:by => @user)
+        VisitablePost.create.visit!(:by => @user)
+        
+        assert_equal 2, @user.visits.size
+      end
+      
+      should "have many visitables" do
+        assert @user.respond_to?(:visitables)
+        assert @account.respond_to?(:visitables)
+        assert !@guest.respond_to?(:visitables)
+        
+        VisitablePost.create.visit!(:by => @user)
+        VisitablePost.create.visit!(:by => @user)
+        VisitablePost.create.visit!(:by => @user)
+        
+        assert_equal 3, @user.visitables.size
+      end
+    end
     
   end
   

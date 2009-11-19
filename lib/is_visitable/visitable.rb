@@ -59,8 +59,8 @@ module IsVisitable #:nodoc:
         # Assocations: Visit class (e.g. Visit).
         options[:visit_class] = ASSOCIATION_CLASS
         
-        # Had to do this here - not sure why. Subclassing Review be enough? =S
-        options[:visit_class].class_eval do
+        # Had to do this here - not sure why. Subclassing Visit should be enough? =S
+        "::#{options[:visit_class]}".constantize.class_eval do
           belongs_to :visitable, :polymorphic => true unless self.respond_to?(:visitable)
           belongs_to :visitor,   :polymorphic => true unless self.respond_to?(:visitor)
         end
@@ -78,13 +78,11 @@ module IsVisitable #:nodoc:
         options[:visitor_classes].each do |visitor_class|
           if ::Object.const_defined?(visitor_class.name.to_sym)
             visitor_class.class_eval do
-              has_many :visits,
-                :foreign_key => :visitor_id,
-                :class_name => options[:visit_class].name
+              has_many :visits, :as => :visitor, :dependent  => :delete_all
                 
               # Polymorphic has-many-through not supported (has_many :visitables, :through => :visits), so:
               # TODO: Implement with :join
-              def vistables(*args)
+              def visitables(*args)
                 query_options = args.extract_options!
                 query_options[:include] = [:visitable]
                 query_options.reverse_merge!(:conditions => Support.polymorphic_conditions_for(self, :visitor))
@@ -117,14 +115,14 @@ module IsVisitable #:nodoc:
         end
         
         # Save the initialized options for this class.
-        self.write_inheritable_attribute :is_visitable_options, options.slice
+        self.write_inheritable_attribute :is_visitable_options, options
         self.class_inheritable_reader :is_visitable_options
       end
       
       # Does this class count/track visits?
       #
       def visitable?
-        @@visitable ||= self.respond_do?(:is_visitable_options, true)
+        @@visitable ||= self.respond_to?(:is_visitable_options, true)
       end
       alias :is_visitable? :visitable?
       
@@ -134,13 +132,14 @@ module IsVisitable #:nodoc:
         #
         def validate_visitor(identifiers)
           raise InvalidVisitorError, "Argument can't be nil: no visitor object or IP provided." if identifiers.blank?
-          visitor = identifiers[:visitor] || identifiers[:user] || identifiers[:account] || identifiers[:ip]
+          visitor = identifiers[:by] || identifiers[:visitor] || identifiers[:user] || identifiers[:ip]
           is_ip = Support.is_ip?(visitor)
           visitor = visitor.to_s.strip if is_ip
+          
           unless Support.is_active_record?(visitor) || is_ip
             raise InvalidVisitorError, "Visitor is of wrong type: #{visitor.inspect}."
           end
-          #raise InvalidVisitorError, "Visit based on IP is disabled." if is_ip && !self.is_visitable_options[:accept_ip]
+          raise InvalidVisitorError, "Visit based on IP is disabled." if is_ip && !self.is_visitable_options[:accept_ip]
           visitor
         end
         
@@ -285,10 +284,6 @@ module IsVisitable #:nodoc:
         rescue Exception => e
           raise RecordError, "Could not create/update visit #{visit.inspect} by #{visitor.inspect}: #{e}"
         end
-      end
-      
-      def unvisit!
-        raise "Not implemented"
       end
       
       protected
