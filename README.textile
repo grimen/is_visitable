@@ -109,7 +109,24 @@ Examples:
 
 h2. Mixin Arguments
 
-TODO
+The @is_visitable@ mixin takes some hash arguments for customization:
+
+* @:by@ - the visitor model(s), e.g. User, Account, etc. (accepts either symbol or class, i.e. @User@ <=> @:user@ <=> @:users@, or an array of suchif there are more than one visitor model). The reviewer model will be setup for you. Note: Polymorhic, so it accepts any model. Default: @nil@.
+* @:accept_ip@ - accept anonymous users uniquely identified by IP (well...you handle the bots =D). See examples below how to use this as your visitor object. Default: @false@.
+
+h3. Aliases
+
+To make the usage of IsVistable usage a bit more generic (similar to other plugins you may use), there are two useful aliases for this purpose:
+
+* Visit#owner   <=>   Visit#visitor
+* Visit#object  <=>   Visit#visitable
+
+Example:
+
+<pre>
+@post.visits.first.owner == post.visits.first.visitor      # => true
+@post.visits.first.object == post.visits.first.visitable   # => true
+</pre>
 
 h2. Finders (Named Scopes)
 
@@ -117,17 +134,38 @@ IsVisitable has plenty of useful finders implemented using named scopes. Here th
 
 h3. @Visit@
 
-TODO
+*Order:*
+
+* @in_order@ - most recent visits last (order by creation date).
+* @most_recent@ - most recent visits first (opposite of @in_order@ above).
+* @least_visits@ - visits with least total visits first.
+* @most_rating@ - visits with most total visits first.
+
+*Filter:*
+
+* @limit(<number_of_items>)@ - maximum @<number_of_items>@ visits.
+* @since(<created_at_datetime>)@ - visits since @<created_at_datetime>@.
+* @recent(<datetime_or_size>)@ - if DateTime: visits since @<datetime_or_size>@, else if Fixnum: pick last @<datetime_or_size>@ number of visits.
+* @between_dates(<from_date>, to_date)@ - visits between two datetimes.
+* @with_visits(<visits_value_or_range>)@ - visits with(in) visits value (or range) @<visits_value_or_range>@.
+* @of_visitable_type(<visitable_type>)@ - visits of @<visitable_type>@ type of visitable models.
+* @by_visitor_type(<visitor_type>)@ - visits of @<visitor_type>@ type of visitor models.
+* @on(<visitable_object>)@ - visits on the visitable object @<visitable_object>@ .
+* @by(<visitor_object>)@ - visits by the @<visitor_object>@ type of visitor models.
 
 h3. @Visitable@
 
-TODO
+_TODO: Documentation on named scopes for Visitable._
 
 h3. @Visitor@
 
-TODO
+_TODO: Documentation on named scopes for Visitor._
 
 h3. Examples using finders:
+
+<pre>
+TODO: Examples of real life usage of IsVisitable-finders.
+</pre>
 
 h2. Additional Methods
 
@@ -147,7 +185,7 @@ end
 
 h2. Caching
 
-If the visitable class table - in the sample above @Post@ - contains a columns @total_visits_count@ and @unique_visits_count@, then a cached value will be maintained within it for the number of unique and total visits the object have got. This will save a database query for counting the number of visits, which is a common task.
+If the visitable class table - in the sample above @Post@ - contains a columns @cached_total_visits_count@ and @cached_unique_visits@, then a cached value will be maintained within it for the number of unique and total visits the object have got. This will save a database query for counting the number of visits, which is a common task.
 
 Additional caching fields:
 
@@ -155,35 +193,41 @@ Additional caching fields:
 class AddTrackVisitsCachingToPostsMigration < ActiveRecord::Migration
   def self.up
     # Enable is_visitable-caching.
-    add_column :posts, :unique_visits_count, :integer
-    add_column :posts, :total_visits_count, :integer
+    add_column :posts, :cached_unique_visits, :integer
+    add_column :posts, :cached_total_visits, :integer
   end
   
   def self.down
-    remove_column :posts, :unique_visits_count
-    remove_column :posts, :total_visits_count
+    remove_column :posts, :cached_unique_visits
+    remove_column :posts, :cached_total_visits
   end
 end
 </pre>
 
 h2. Real Life Example
 
-h3. Controller
+h3. In a "visitable resource" controller:
 
-TODO
+Example: @app/controllers/posts_controller.rb@:
 
+<pre>
+class PostsController < ApplicationController
+  
+  def show
+    ...
+    @post.visit!(:visitor => (current_user.present? ? current_user : request.try(:remote_ip)))
+  end
+  
+end
+</pre>
 
 h2. Dependencies
 
-Basic usage:
-
-* "rails":http://github.com/rails/rails (well...)
-
-For running tests:
+Tests:
 
 * sqlite3-ruby
-* "thoughtbot-shoulda":http://github.com/thoughtbot/shoulda
-* "nakajima-acts_as_fu":http://github.com/nakajima/acts_as_fu
+* "shoulda":http://github.com/thoughtbot/shoulda
+* "acts_as_fu":http://github.com/nakajima/acts_as_fu
 
 h2. Notes
 
@@ -193,9 +237,11 @@ h2. Notes
 h2. TODO
 
 * documentation: A few more README-examples.
-* testing: More thorough tests for more complex scenarios.
+* helper: Controller helper taking arguments for DRYer controller code. Example (in controller): handle_visits :by => current_user
 * feature: Useful finders for @Visitable@.
 * feature: Useful finders for @Visitor@.
+* testing: More thorough tests for more complex scenarios.
+* refactor: Refactor generic stuff to new gem, @is_base@, and add as gem dependency. Reason: Share the same patterns for my very similar ActiveRecord plugins: is_reviewable, is_visitable, is_commentable, and future additions.
 
 h2. License
 
