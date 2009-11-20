@@ -80,16 +80,16 @@ Examples:
 @post.unique_visits     # => 0
 @post.total_visits      # => 0
 
-@post.visit!(:visitor => '128.0.0.0')
-@post.visit!(:visitor => @user)      # aliases: :user, :account
+@post.visit!(:by => '128.0.0.0')
+@post.visit!(:by => @user)      # aliases: :user, :account
 
 @post.visited?          # => true
 @post.unique_visits     # => 2
 @post.total_visits      # => 2
 
-@post.visit!(:visitor => '128.0.0.0')
-@post.visit!(:visitor => @user)
-@post.visit!(:visitor => '128.0.0.1')
+@post.visit!(:by => '128.0.0.0')
+@post.visit!(:by => @user)
+@post.visit!(:by => '128.0.0.1')
 
 @post.unique_visits     # => 3
 @post.total_visits      # => 5
@@ -235,7 +235,7 @@ class PostsController < ApplicationController
   
   def show
     ...
-    @post.visit!(:visitor => (current_user.present? ? current_user : request.try(:remote_ip)))
+    @post.visit!(:by => (current_user.present? ? current_user : request.try(:remote_ip)))
     ...
   end
   
