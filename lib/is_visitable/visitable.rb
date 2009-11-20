@@ -254,30 +254,13 @@ module IsVisitable #:nodoc:
           else
             # An existing visitor of this visitable object => Update the existing visit.
           end
-          is_new_record = visit.new_record?
           
           # Update non-association attributes and any custom fields.
           visit.attributes = visit_values.slice(*visit.attribute_names.collect { |an| an.to_sym })
-          
           visit.visits += 1
-          visit.save && self.save_without_validation
           
-          if self.visitable_caching_fields?(:total_visits)
-            begin
-              self.cached_total_visits += 1 if is_new_record
-            rescue
-              self.cached_total_visits = self.total_visits(true)
-            end
-          end
-          
-          if self.visitable_caching_fields?(:unique_visits)
-            begin
-              self.cached_unique_visits += 1 if is_new_record
-            rescue
-              self.cached_unique_visits = self.unique_visits(true)
-            end
-          end
-          
+          # Save review and any cachable data.
+          visit.save && self.update_cache!
           visit
         rescue InvalidVisitorError => e
           raise e
@@ -287,6 +270,20 @@ module IsVisitable #:nodoc:
       end
       
       protected
+        
+        # Update cache fields if available/enabled.
+        #
+        def update_cache!
+          if self.visitable_caching_fields?(:total_visits)
+            # self.cached_total_visits += 1 if is_new_record
+            self.cached_total_visits = self.total_visits(true)
+          end
+          if self.visitable_caching_fields?(:unique_visits)
+            # self.cached_unique_visits += 1 if is_new_record
+            self.cached_unique_visits = self.unique_visits(true)
+          end
+          self.save_without_validation if self.changed?
+        end
         
         # Cachable fields for this visitable class.
         #

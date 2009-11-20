@@ -1,4 +1,4 @@
-h1. IS_VISITABLE
+h1. IS_VISITABLE ~ concept version ~
 
 _Rails: Track unique and total visits/viewings of an ActiveRecord resource based on user/account or IP._
 
@@ -257,7 +257,7 @@ h2. TODO
 * helper: Controller helper taking arguments for DRYer controller code. Example (in controller): handle_visits :by => current_user
 * feature: Useful finders for @Visitable@.
 * feature: Useful finders for @Visitor@.
-* testing: More thorough tests for more complex scenarios.
+* testing: More thorough tests.
 * refactor: Refactor generic stuff to new gem, @is_base@, and add as gem dependency. Reason: Share the same patterns for my very similar ActiveRecord plugins: is_reviewable, is_visitable, is_commentable, and future additions.
 
 h2. License
